@@ -1,0 +1,196 @@
+\documentclass{article}
+\usepackage{noweb}
+\pagestyle{noweb}
+\usepackage{graphicx}
+
+\title{BSP Trees in Erlang}
+\author{Alex Kropivny}
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+
+\noweboptions{smallcode}
+
+\section{Introduction}
+
+I need a data structure for storing dense but repetitive, multidimensional, integer-indexed data. It must efficiently support occasional mutations, and flexible bulk queries that filter down and transform the contents into smaller structures. I'd like it to be infinite and support declarative, comonad-like transformations... But will settle for something simple, and try to add that abstraction at a higher level.
+
+The structure I've chosen to implement is a BSP tree made out of list cons cells. It is efficient to update, simple to implement, and has some interesting properties for transforming into simpler views.
+
+The library is implemented in Lisp Flavored Erlang for simplicity and development speed. It is documented via literate programming for comprehension.
+
+\section{Foundation}
+
+All code is one module.
+
+<<bsp.lfe>>=
+(include-lib "lfe_utils/include/all.lfe")
+(defmodule bsp
+  (using lists)
+  (export <<Exports>>))
+
+;; Vector manipulation:
+<<Vectors>>
+
+;; General utilities:
+<<Utilities>>
+
+;; BSP tree manipulation:
+<<Functions>>
+@
+
+Brief usage documentation is in a Github README, with detailed documentation generated into a PDF.
+
+<<../README.md>>=
+<<Vector docs>>
+
+Building
+========
+<<Building docs>>
+
+Viewing
+=======
+<<Viewing docs>>
+
+Querying
+========
+<<Querying docs>>
+
+Transforming
+============
+<<Transforming docs>>
+@
+
+\section{Vectors}
+
+The following code is quite simple and dry, but necessary.
+
+We need a vector data type. Since there are no Erlang vector libraries that I'm aware of, I'm making my own. It conforms to good Erlang practice, and will be compatible with any good 3rd party code that pops up.
+
+The BSP trees we're concerned with are trivial ones, where the volume being partitioned is always split exactly in half. Their structures have a nifty relation to the bits in the integer index of the volume being partitioned, which we'll take advantage of.
+
+It's worth underlining that Erlang integers have no upper bound, and can easily be converted to binaries and back. They are a very flexible data type.
+
+<<Vector docs>>=
+Tagged tuples of integers are used as coordinate and size vectors.
+
+Tag and size are up to you: {vec3,0,1,0} and {addr,192,168,1,1} are valid 3 and
+4 dimensional vectors.
+
+Each tree should only contain one type of vector. Mixing things like
+{cartesian,0,1} and {polar,1,90} won't work.
+
+```erlang
+-spec vec(N) :: {term(),integer(),...} when N==size(Tuple)-1.
+```
+@
+
+Starting with basic helper and sanitization functions.
+
+<<Utilities>>=
+(defn list->tup [l] (list_to_tuple l))
+(defn tup->list [t] (tuple_to_list t))
+@
+
+<<Vectors>>=
+; sanitize input
+(defn vector? 
+  [v] (when (is_tuple v))
+    (lists:all (fun is_integer 1) (vec-contents v)))
+  [_] 'false)
+
+; get list of integers
+(defn vec-contents [v] 
+  (tl (tup->list v)))
+
+(defn make-vec [tag contents]
+  (list->tup (cons tag contents)))
+@
+
+Dereferencing one split of a BSP tree is a rotation. We'll end up iterating over the vector components by repeatedly rotating the vector, and looking at only the first component.
+
+<<Vectors>>=
+; make first element last, shift rest to take its place
+(defn vec-rot [v] 
+  (in (list->tup (cons tag xs'))
+   [xs' (++ most (list last))
+    (last . most) xs
+    (tag . xs) (tup->list v)]))
+
+; same, but overwrite first element
+(defn vec-rot-with [x v]
+  (list->tup (cons tag xs')
+   [xs' (++ (tl xs) (list x))
+    (tag . xs) (tup->list v)]))
+
+; first vector element ('x')
+(defn 1st-el [v] (element 2 v))
+@
+
+Because trivial splits always cut volumes in exactly half, our BSP tree dimensions are restricted to powers of two.
+
+<<Utilities>>=
+; test for power of two
+(defn 2^n?
+  [n] (when (=< n #xff)) (2^n-byte? n)
+  [n] (andalso (== 0 (band #xff n)) 
+               (2^n? (bsr n 8))))
+
+(defn 2^n-byte?
+  [1]  'true [2]  'true [4]  'true [8]   'true
+  [16] 'true [32] 'true [64] 'true [128] 'true
+  [_] 'false)
+@
+
+<<Vectors>>=
+(defn 2^n-vec? [v]
+  (lists:all (fun 2^n? 1) (vec-contents v)))
+@
+
+Finally, the minimum usual operations. The size-apathetic arithmetic ones are slow, but can be optimized later as needed. (When there are benchmarks proving they're worth optimizing.) Pattern matching common (2, 3, 4d vectors) cases should be enough. Using macros to compile matches for arbitrary sizes would be fun, but probably unnecessary.
+
+<<Vectors>>=
+(defn vec-size [v] (- (size v) 1))
+
+; construct a null vector of the same type as another
+(defn null-vec [v] 
+  (: erlang make_tuple (vec-size v) 0 
+                       (list (tuple 1 (element 1 v))))
+
+(defn :+ (va vb) 
+  (in (make-vec tag els)
+   [tag (element 1 va)
+    els (lists:zipwith (fun erlang + 2) 
+                       (vec-contents va) 
+                       (vec-contents vb))]))
+@
+
+\section{Todo}
+
+<<Exports>>=
+    todo
+@
+<<Utilities>>=
+    todo
+@
+<<Functions>>=
+    todo
+@
+<<Building docs>>=
+    todo
+@
+<<Viewing docs>>=
+    todo
+@
+<<Querying docs>>=
+    todo
+@
+<<Transforming docs>>=
+    todo
+@
+
+\section{Index}
+\nowebindex
+\end{document}
