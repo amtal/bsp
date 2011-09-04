@@ -1,2 +1,6 @@
 *.swp
 src/bsp.tex
+bsp.aux
+bsp.log
+bsp.toc
+bsp.pdf

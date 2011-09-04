@@ -1,3 +1,6 @@
+;;; Code automatically generated from bsp.nw literate program. Go read the PDF
+;;; generated alongside, instead of this commentless soup. The following isn't
+;;; meant for human consumption!
 (include-lib "lfe_utils/include/all.lfe")
 (defmodule bsp
   (using lists)
