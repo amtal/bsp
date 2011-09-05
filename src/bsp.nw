@@ -77,16 +77,13 @@ The BSP trees we're concerned with are trivial ones, where the volume being part
 It's worth underlining that Erlang integers have no upper bound, and can easily be converted to binaries and back. They are a very flexible data type.
 
 <<Vector docs>>=
-Tagged tuples of integers are used as coordinate and size vectors.
-
-Tag and size are up to you: {vec3,0,1,0} and {addr,192,168,1,1} are valid 3 and
-4 dimensional vectors.
-
-Each tree should only contain one type of vector. Mixing things like
+Tagged tuples of integers are used as coordinate and size vectors. Tag and size
+are up to you: {vec3,0,1,0} and {addr,192,168,1,1} are valid 3 and 4 dimensional
+vectors.  Each tree should only contain one type of vector. Mixing things like
 {cartesian,0,1} and {polar,1,90} won't work.
 
 ```erlang
--spec vec(N) :: {term(),integer(),...} when N==size(Tuple)-1.
+-spec vector(N) :: {term(),integer(),...} when N==size(Tuple)-1.
 ```
 @
 
@@ -124,12 +121,27 @@ Dereferencing one split of a BSP tree is a rotation. We'll end up iterating over
 
 ; same, but overwrite first element
 (defn vec-rot-with [x v]
-  (list->tup (cons tag xs')
+  (in (list->tup (cons tag xs')
    [xs' (++ (tl xs) (list x))
-    (tag . xs) (tup->list v)]))
+    (tag . xs) (tup->list v)])))
 
 ; first vector element ('x')
 (defn 1st-el [v] (element 2 v))
+@
+
+Alternatively, an index into the vector could be used.
+
+<<Vectors>>=
+(defn vec-size [v] (- (size v) 1))
+
+; proper zero-based indexing
+(defn vec-nth [n v] (element (+ n 2) v))
+
+; overflow indexes that get too large
+(defn vec-index [n v]
+  (let (if (< 0 n') n' (+ size n'))
+   [n' (rem n size)
+    size (vec-size v)]))
 @
 
 Because trivial splits always cut volumes in exactly half, our BSP tree dimensions are restricted to powers of two.
@@ -155,8 +167,6 @@ Because trivial splits always cut volumes in exactly half, our BSP tree dimensio
 Finally, the minimum usual operations. The size-apathetic arithmetic ones are slow, but can be optimized later as needed. (When there are benchmarks proving they're worth optimizing.) Pattern matching common (2, 3, 4d vectors) cases should be enough. Using macros to compile matches for arbitrary sizes would be fun, but probably unnecessary.
 
 <<Vectors>>=
-(defn vec-size [v] (- (size v) 1))
-
 ; construct a null vector of the same type as another
 (defn null-vec [v] 
   (: erlang make_tuple (vec-size v) 0 

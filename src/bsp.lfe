@@ -28,16 +28,24 @@
 
 ; same, but overwrite first element
 (defn vec-rot-with [x v]
-  (list->tup (cons tag xs')
+  (in (list->tup (cons tag xs')
    [xs' (++ (tl xs) (list x))
-    (tag . xs) (tup->list v)]))
+    (tag . xs) (tup->list v)])))
 
 ; first vector element ('x')
 (defn 1st-el [v] (element 2 v))
-(defn 2^n-vec? [v]
-  (lists:all (fun 2^n? 1) (vec-contents v)))
 (defn vec-size [v] (- (size v) 1))
 
+; proper zero-based indexing
+(defn vec-nth [n v] (element (+ n 2) v))
+
+; overflow indexes that get too large
+(defn vec-index [n v]
+  (let (if (< 0 n') n' (+ size n'))
+   [n' (rem n size)
+    size (vec-size v)]))
+(defn 2^n-vec? [v]
+  (lists:all (fun 2^n? 1) (vec-contents v)))
 ; construct a null vector of the same type as another
 (defn null-vec [v] 
   (: erlang make_tuple (vec-size v) 0 
