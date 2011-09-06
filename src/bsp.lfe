@@ -4,7 +4,9 @@
 (include-lib "lfe_utils/include/all.lfe")
 (defmodule bsp
   (using lists)
-  (export     todo))
+  (export (is_tree 1)
+	  (new 2)
+	  (factor 2)))
 
 ;; Vector manipulation:
 ; sanitize input
@@ -51,6 +53,10 @@
   (: erlang make_tuple (vec-size v) 0 
                        (list (tuple 1 (element 1 v))))
 
+(defn unit-hypercube? [v]
+  (== v (: erlang make_tuple (vec-size v) 1
+                             (list (tuple 1 (element 1 v))))))
+
 (defn :+ (va vb) 
   (in (make-vec tag els)
    [tag (element 1 va)
@@ -71,7 +77,41 @@
   [1]  'true [2]  'true [4]  'true [8]   'true
   [16] 'true [32] 'true [64] 'true [128] 'true
   [_] 'false)
-    todo
+(defmacro :bsp ([size data] `(tuple 'bsp ,size ,data)))
+(defn fold-dn [fold-fun acc0 tree] 'todo)
 
 ;; BSP tree manipulation:
-    todo
+(defn is_tree 
+  [(tuple 'bsp size _data)] (2^n-vec? size)
+  [_] 'false)
+(defn new [size lup] 
+  (if (2^n-vec? size)
+    (:bsp size (build-new size (null-vec size) lup))
+    (error 'badarg (list size lup))))
+; where
+  (defn build-new [size pos lup]
+    (if (unit-hypercube? size)
+      ; 1x1x1 sizes can be looked up
+      (let [(volume (funcall lup pos))]
+        (if (is_list volume)
+          (error (tuple 'no_lists pos volume)))
+        volume)
+      ; larger ones must be split into two branches
+      (in (if (minimal-identical-trees? left right)
+            left ; merge
+            (cons left right)) ; branch
+       [left (build-new size' pos-left lup)
+        right (build-new size' pos-right lup)
+        ; cut the current axis in two
+        size' (vec-rot-with (bsr (1st-el size) 1) size)
+        ; position increased by an order of magnitude, with
+        ; least significant bit indicating choice between
+        ; left and right branches
+        pos-left (vec-rot-with offset pos)
+        pos-right (vec-rot-with (bor 1 offset) pos)
+        offset (bsl (1st-el pos) 1)])))
+  (defn minimal-identical-trees? [a b]
+    (andalso (not (is_list a))
+             (not (is_list b))
+             (== a b)))
+    
