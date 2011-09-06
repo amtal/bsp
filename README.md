@@ -7,14 +7,17 @@ vectors.  Each tree should only contain one type of vector. Mixing things like
 -spec vector(N) :: {term(),integer(),...} when N==size(Tuple)-1.
 ```
 Trees are indexed by an N-dimensional vector, and can contain anything.
+
 ```erlang
 -type tree(N,A)::{bsp,term(),term()} when N::integer(), A::any().
 ```
 
 Building
 ========
+Ideal constructor from flat data (binaries, arrays) accessible via vector lookups.
+
 ```erlang
--spec new(Size::vector(N), Lookup(vector(N))->A)->tree(N,A).
+-spec new(Size::vector(N), Lookup::fun(vector(N))->A) -> tree(N,A).
 ```
 
 Viewing
@@ -29,6 +32,7 @@ Transforming
 ============
 Factor a tree into a lower-dimension tree of lower-dimension trees. Non-zero
 vector elements mark dimensions to use in the top tree.
+
 ```erlang
--spec factor(vector(N), tree(N,A))->tree(J,tree(K,A)) where J+K=N.
+-spec factor(Selector::vector(N), tree(N,A)) -> tree(J,tree(K,A)) where J+K=N.
 ```

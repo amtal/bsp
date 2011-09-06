@@ -189,6 +189,7 @@ Finally, the minimum usual operations. The size-apathetic arithmetic ones are sl
 
 <<Intro docs>>=
 Trees are indexed by an N-dimensional vector, and can contain anything.
+
 ```erlang
 -type tree(N,A)::{bsp,term(),term()} when N::integer(), A::any().
 ```
@@ -217,8 +218,10 @@ Since there are many flat data types, we'll make the constructor a higher order 
 @
 
 <<Building docs>>=
+Ideal constructor from flat data (binaries, arrays) accessible via vector lookups.
+
 ```erlang
--spec new(Size::vector(N), Lookup(vector(N))->A)->tree(N,A).
+-spec new(Size::vector(N), Lookup::fun(vector(N))->A) -> tree(N,A).
 ```
 @
 
@@ -267,8 +270,9 @@ Each cons cell represents a split on an axis. The axises are round robined. They
 <<Transforming docs>>=
 Factor a tree into a lower-dimension tree of lower-dimension trees. Non-zero
 vector elements mark dimensions to use in the top tree.
+
 ```erlang
--spec factor(vector(N), tree(N,A))->tree(J,tree(K,A)) where J+K=N.
+-spec factor(Selector::vector(N), tree(N,A)) -> tree(J,tree(K,A)) where J+K=N.
 ```
 @
 
