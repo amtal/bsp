@@ -207,15 +207,7 @@ Trees are indexed by an N-dimensional vector, and can contain anything.
 ```
 @
 
-<<Exports>>=
-(is_tree 1)
-@
 
-<<Functions>>=
-(defn is_tree 
-  [(tuple 'bsp size _data)] (2^n-vec? size)
-  [_] 'false)
-@
 
 \subsection{Construction}
 
@@ -235,10 +227,6 @@ Ideal constructor from flat data (binaries, arrays) accessible via vector lookup
 ```erlang
 -spec new(Size::vector(N), Lookup::fun(vector(N))->A) -> tree(N,A).
 ```
-@
-
-<<Utilities>>=
-(defmacro :bsp ([size data] `(tuple 'bsp ,size ,data)))
 @
 
 <<Functions>>=
@@ -274,6 +262,53 @@ Ideal constructor from flat data (binaries, arrays) accessible via vector lookup
              (== a b)))
     
 @
+
+\subsection{Basic Accessors}
+
+Some trivial, but indispensable functions.
+
+<<Intro docs>>=
+```erlang
+-spec is_tree(term()) -> true|false.
+-spec size(tree(N,A)) -> vector(N).
+```
+
+Binary space partioning merges identical regions of data, often storing less values than flat containers.
+
+```erlang
+-spec sparsity(tree(N,A)) -> {TreeCount::integer(), FlatCount::integer()}.
+```
+@
+
+A flat \(N\times N\times N\) array stores \(N^3\) separate \(1\times1\times1\) volumes, but a BSP tree will group adjacent ones into power of two amalgalms. Ignoring storage overhead, a rough idea of the resulting "compression" can be had by counting stored volumes. At worst, it'll be the same count as a flat representation. At best, the contents are all identical and only one volume needs to be stored.
+
+
+<<Exports>>=
+(is_tree 1) (size 1) (sparsity 1)
+@
+
+The Erlang community dislikes macros almost as much as Java. However, you know what they say: when in Rome, factor out common patterns to avoid repetition!
+
+<<Utilities>>=
+(defmacro :bsp ([size data] `(tuple 'bsp ,size ,data)))
+@
+
+<<Functions>>=
+(defn is_tree 
+  [(:bsp size _data)] (2^n-vec? size)
+  [_] 'false)
+
+(defn size [(:bsp size _data)] size)
+
+(defn sparsity [(:bsp size data)] 
+  (tuple (count-leaves data)
+         (lists:foldl (fn [a b] (* a b)) 1 (vec-contents data))))
+; where
+  (defn count-leaves 
+    [(cons l r)] (+ (count-leaves l) (count-leaves r))
+    [_] 1)
+@
+
 
 \subsection{Factoring}
 

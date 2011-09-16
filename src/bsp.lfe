@@ -4,8 +4,8 @@
 (include-lib "lfe_utils/include/all.lfe")
 (defmodule bsp
   (using lists)
-  (export (is_tree 1)
-	  (new 2)
+  (export (new 2)
+	  (is_tree 1) (size 1) (sparsity 1)
 	  (factor 2)))
 
 ;; Vector manipulation:
@@ -88,9 +88,6 @@
     
 
 ;; BSP tree manipulation:
-(defn is_tree 
-  [(tuple 'bsp size _data)] (2^n-vec? size)
-  [_] 'false)
 (defn new [size lup] 
   (if (2^n-vec? size)
     (:bsp size (build-new size (null-vec size) lup))
@@ -122,3 +119,16 @@
              (not (is_list b))
              (== a b)))
     
+(defn is_tree 
+  [(:bsp size _data)] (2^n-vec? size)
+  [_] 'false)
+
+(defn size [(:bsp size _data)] size)
+
+(defn sparsity [(:bsp size data)] 
+  (tuple (count-leaves data)
+         (lists:foldl (fn [a b] (* a b)) 1 (vec-contents data))))
+; where
+  (defn count-leaves 
+    [(cons l r)] (+ (count-leaves l) (count-leaves r))
+    [_] 1)

@@ -11,6 +11,16 @@ Trees are indexed by an N-dimensional vector, and can contain anything.
 ```erlang
 -type tree(N,A)::{bsp,term(),term()} when N::integer(), A::any().
 ```
+```erlang
+-spec is_tree(term()) -> true|false.
+-spec size(tree(N,A)) -> vector(N).
+```
+
+Binary space partioning merges identical regions of data, often storing less values than flat containers.
+
+```erlang
+-spec sparsity(tree(N,A)) -> {TreeCount::integer(), FlatCount::integer()}.
+```
 
 Building
 ========
