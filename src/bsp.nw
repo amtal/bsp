@@ -265,7 +265,7 @@ Ideal constructor from flat data (binaries, arrays) accessible via vector lookup
 
 \subsection{Factoring}
 
-Each cons cell represents a split on an axis. The axises are round robined. They are independent: so much so that an N dimensional tree can be factored into a J dimensional tree of K dimensional trees, where J+K=N.
+Each cons cell represents a split on an axis. The axes are round robined. They are independent: so much so that an N dimensional tree can be factored into a J dimensional tree of K dimensional trees, where J+K=N.
 
 <<Transforming docs>>=
 Factor a tree into a lower-dimension tree of lower-dimension trees. Non-zero
@@ -280,8 +280,21 @@ vector elements mark dimensions to use in the top tree.
 (factor 2)
 @
 
+The tree being factored to the top level, is a singleton. It branches along the dimensions specified in the selection vector, until there are no branches left. The branches are built by traversing the original tree top-down.
+
+The contents of the branches, are trees. The inner trees are independent and varied, collected together in an accumulator as the top-level tree is built. The accumulator produces a different inner tree for each leaf of the top-level tree. 
+
+The process can produce significant duplication between the inner trees. The inner trees no longer benefit from the structure of the top tree, thus leaking information.
+
 <<Utilities>>=
-(defn fold-dn [fold-fun acc0 tree] 'todo)
+(defn factor [axes (:bsp size data)]
+  (in (:bsp outer-size (factor inner-size axes data acc))
+   [(tuple outer-size inner-size) (partition-vec axes size)
+    _ (if (/= (vec-size axes) (vec-size size))
+        (error (tuple 'vector_dim_mismatch axes size)))]))
+; where
+  (defn factor [inner-size axes data inner] 'todo)
+    
 @
 
 \section{Todo}

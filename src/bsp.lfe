@@ -78,7 +78,14 @@
   [16] 'true [32] 'true [64] 'true [128] 'true
   [_] 'false)
 (defmacro :bsp ([size data] `(tuple 'bsp ,size ,data)))
-(defn fold-dn [fold-fun acc0 tree] 'todo)
+(defn factor [axes (:bsp size data)]
+  (in (:bsp outer-size (factor inner-size axes data acc))
+   [(tuple outer-size inner-size) (partition-vec axes size)
+    _ (if (/= (vec-size axes) (vec-size size))
+        (error (tuple 'vector_dim_mismatch axes size)))]))
+; where
+  (defn factor [inner-size axes data inner] 'todo)
+    
 
 ;; BSP tree manipulation:
 (defn is_tree 
