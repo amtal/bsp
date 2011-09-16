@@ -309,6 +309,36 @@ The Erlang community dislikes macros almost as much as Java. However, you know w
     [_] 1)
 @
 
+Maps are trivial, but important.
+
+<<Transforming docs>>=
+Maps tend to simplify the data while keeping size the same, making it more
+repetitive, thus making the tree much smaller. Mapping a tree to filter out all
+non-interesting data prior to working with it, yields impressive efficiecy
+gains.
+
+```erlang
+-spec map(fun(A)->B, tree(N,A)) -> tree(N,B).
+```
+@
+
+<<Exports>>=
+(map 2)
+@
+
+<<Functions>>=
+(defn map [f (:bsp _ data)] (map-tree f data))
+; where
+  (map-tree
+    [f (cons l r)]
+      (in (if (?minimal-identical-trees? l' r') 
+            l' ; tree got simplified, merge
+            (cons l' r'))
+       [l' (map-tree f l) 
+        r' (map-tree f r)])
+    [f leaf] (funcall f leaf))
+@
+
 
 \subsection{Factoring}
 

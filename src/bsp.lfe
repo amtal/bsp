@@ -6,6 +6,7 @@
   (using lists)
   (export (new 2)
 	  (is_tree 1) (size 1) (sparsity 1)
+	  (map 2)
 	  (factor 2)))
 
 ;; Vector manipulation:
@@ -132,3 +133,13 @@
   (defn count-leaves 
     [(cons l r)] (+ (count-leaves l) (count-leaves r))
     [_] 1)
+(defn map [f (:bsp _ data)] (map-tree f data))
+; where
+  (map-tree
+    [f (cons l r)]
+      (in (if (?minimal-identical-trees? l' r') 
+            l' ; tree got simplified, merge
+            (cons l' r'))
+       [l' (map-tree f l) 
+        r' (map-tree f r)])
+    [f leaf] (funcall f leaf))

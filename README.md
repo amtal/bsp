@@ -40,6 +40,14 @@ Querying
 
 Transforming
 ============
+Maps tend to simplify the data while keeping size the same, making it more
+repetitive, thus making the tree much smaller. Mapping a tree to filter out all
+non-interesting data prior to working with it, yields impressive efficiecy
+gains.
+
+```erlang
+-spec map(fun(A)->B, tree(N,A)) -> tree(N,B).
+```
 Factor a tree into a lower-dimension tree of lower-dimension trees. Non-zero
 vector elements mark dimensions to use in the top tree.
 
