@@ -15,34 +15,27 @@
 
 \section{Introduction}
 
-I need a data structure for storing dense but repetitive, multidimensional, integer-indexed data. It must efficiently support occasional mutations, and flexible bulk queries that filter down and transform the contents into smaller structures. I'd like it to be infinite and support declarative, comonad-like transformations... But will settle for something simple, and try to add that abstraction at a higher level.
+There is an age old problem in immutable languages: how do I mutate a piece of a huge chunk of data, without copying the whole thing?
 
-The structure I've chosen to implement is a BSP tree made out of list cons cells. It is efficient to update, simple to implement, and has some interesting properties for transforming into simpler views.
+The answer is trees. The problem came up again recently, in an Erlang IRC channel, with respect to a Minecraft server. The game stores a massive amount of often-mutated data in a 3D grid. It highlighted a potential gap in existing libraries: multiple solutions were proposed, but all felt a little off.
 
-The library is implemented in Lisp Flavored Erlang for simplicity and development speed. It is documented via literate programming for comprehension.
+A new data structure is required. It must support:
+
+\begin{itemize}
+\item Integer indexes in multiple dimensions, for bulk XYZ storage.
+\item Efficient storage of localy repetitive data, which there'll be lots of.
+\item Regular simple bulk queries, for dumping data to newly connected clients.
+\item Occasional point mutation, for live world editing.
+\item Infrequent flexible queries that filter and transform the data into simpler forms, for building fundamental pathing, physics, and lighting data structures.
+\end{itemize}
+
+I'd also like it to be infinite, and support declarative, comonad-like transformations... But without laziness, that abstraction is probably best left to a higher level.
+
+The structure I'm implementing is a trivial binary space partitioned tree constructed from list cons cells. It is efficient to update, simple to implement, and has some very interesting properties for integer indexing and transformations.
+
+The library is implemented in Lisp Flavored Erlang for simplicity and development speed. It is documented via Knuth's literate programming to clarify and explain some of the algorithms and design choices.
 
 \section{Files}
-
-All code is one module.
-
-<<bsp.lfe>>=
-;;; Code automatically generated from bsp.nw literate program. Go read the PDF
-;;; generated alongside, instead of this commentless soup. The following isn't
-;;; meant for human consumption!
-(include-lib "lfe_utils/include/all.lfe")
-(defmodule bsp
-  (using lists)
-  (export <<Exports>>))
-
-;; Vector manipulation:
-<<Vectors>>
-
-;; General utilities:
-<<Utilities>>
-
-;; BSP tree manipulation:
-<<Functions>>
-@
 
 Brief usage documentation is in a Github README, with detailed documentation generated into a PDF.
 
@@ -66,9 +59,28 @@ Transforming
 <<Transforming docs>>
 @
 
-\section{Vectors}
+All code is one module.
 
-The following code is quite simple and dry, but necessary.
+<<bsp.lfe>>=
+;;; Code automatically generated from bsp.nw literate program. Go read the PDF
+;;; generated alongside, instead of this commentless soup. The following isn't
+;;; meant for human consumption!
+(include-lib "lfe_utils/include/all.lfe")
+(defmodule bsp
+  (using lists)
+  (export <<Exports>>))
+
+;; Vector manipulation:
+<<Vectors>>
+
+;; General utilities:
+<<Utilities>>
+
+;; BSP tree manipulation:
+<<Functions>>
+@
+
+\section{Vectors}
 
 We need a vector data type. Since there are no Erlang vector libraries that I'm aware of, I'm making my own. It conforms to good Erlang practice, and will be compatible with any good 3rd party code that pops up.
 
