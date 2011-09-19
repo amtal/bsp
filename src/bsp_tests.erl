@@ -9,7 +9,7 @@ go()->proper:module(bsp_tests).
 prop_compression() ->
     ?FORALL({Tree,Limit}
            ,{?LET(Dim,integer(1,4),
-                ?LET(Size,pow2_vector(Dim),
+                ?LET(Size,pow2_vector(Dim,2),
                         byte_tree(Size)
                     )
              )
@@ -32,12 +32,11 @@ prop_compression() ->
                )
     end).
 
-pow2_vector(N) -> 
-    ?LET(Range,union([1,2,4,8,16]), % only cubic vectors - meh, will do
-        ?LET(Contents,vector(N,Range),
-            list_to_tuple([{vec,N}|Contents])
-        )
-    ).
+pow2_vector(Dims,Limit) -> 
+    ?LET(Lengths,vector(Dims,integer(1,Limit)),begin
+        Contents = [trunc(math:pow(2,L))||L<-Lengths],
+        list_to_tuple([{vec,Dims}|Contents])
+    end).
 
 byte_tree(Size) ->
     FlatSize = volume(Size),
