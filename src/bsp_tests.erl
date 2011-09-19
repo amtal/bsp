@@ -24,9 +24,12 @@ prop_compression() ->
         {N1,D} = bsp:sparsity(Tree),
         {N2,D} = bsp:sparsity(Tree2),
         Compression = 100-trunc(100*N2/N1),
-        collect(with_title("Compression percentages:"), Compression,
-             N2 =< N1
-        )
+        collect( with_title("Large limit = small range reduction = low compression\n"
+                            "Small limit = large range reduction = high compression\n"
+                            "FRQ% {Limit div 10, Compression%}:")
+               , {Limit div 10, Compression}
+               , N2 =< N1
+               )
     end).
 
 pow2_vector(N) -> 
