@@ -62,6 +62,10 @@
                              1
                              (list (tuple 1 (element 1 v))))))
 
+(defn hypercube? [v]
+  (in (lists:all (cute == <> head) tail)
+   [(head . tail) (vec-contents v)]))
+
 (defn :+ (va vb) 
   (in (make-vec tag els)
    [tag (element 1 va)
@@ -95,7 +99,8 @@
 
 ;; BSP tree manipulation:
 (defn new [size lup] 
-  (if (2^n-vec? size)
+  (if (andalso (2^n-vec? size)
+               (hypercube? size))
     (:bsp size (build-new size (null-vec size) lup))
     (error 'badarg (list size lup))))
 ; where

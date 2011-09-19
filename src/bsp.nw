@@ -186,6 +186,10 @@ Finally, the minimum usual operations. The size-apathetic arithmetic ones are sl
                              1
                              (list (tuple 1 (element 1 v))))))
 
+(defn hypercube? [v]
+  (in (lists:all (cute == <> head) tail)
+   [(head . tail) (vec-contents v)]))
+
 (defn :+ (va vb) 
   (in (make-vec tag els)
    [tag (element 1 va)
@@ -198,13 +202,13 @@ Finally, the minimum usual operations. The size-apathetic arithmetic ones are sl
 \section{Foundations}
 
 <<Intro docs>>=
-Trees are indexed by an N-dimensional vector, and can contain anything but lists.
+Trees are indexed by an N-dimensional vector, and can contain anything but
+lists. Their width must be a power of two, and be the same for all dimensions.
 
 ```erlang
 -type tree(N,A)::{bsp,term(),term()} when N::integer(), A::any_but_list().
 ```
 @
-
 
 
 \subsection{Construction}
@@ -214,6 +218,8 @@ Let's start by constructing a tree. The minimal tree is a single homogenous volu
 Most initial data representations are flat, and don't group together similar contents. Trees do: when constructing a tree out of flat data, we need to do lots of comparisons between branches, and merge branches into a single volume if they're both minimal and identical.
 
 Since there are many flat data types, we'll make the constructor a higher order function. We recursively subdivide the tree into smaller ones, until they're 1x1x1 in size. Then we use the lookup function to find the value of the volume there, and move up the stack, doing comparisons and merging as we go.
+
+The size is restricted to being in powers of two (for obvious reasons) and a hypercube (for less obvious ones). The hypercube restriction may be possible to lift, but it makes things more complicated in subtle and annoying ways and probably isn't worth much.
 
 <<Exports>>=
 (new 2)
@@ -229,7 +235,8 @@ Ideal constructor from flat data (binaries, arrays) accessible via vector lookup
 
 <<Functions>>=
 (defn new [size lup] 
-  (if (2^n-vec? size)
+  (if (andalso (2^n-vec? size)
+               (hypercube? size))
     (:bsp size (build-new size (null-vec size) lup))
     (error 'badarg (list size lup))))
 ; where
