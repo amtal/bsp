@@ -33,7 +33,7 @@ prop_compression() ->
     end).
 
 pow2_vector(Dims,Limit) -> 
-    ?LET(Length,integer(0,Limit),begin
+    ?LET(Length,frequency([{X,X}||X<-lists:seq(0,Limit)]),begin
         Contents = lists:duplicate(Dims,trunc(math:pow(2,Length))),
         list_to_tuple([{vec,Dims}|Contents])
     end).
