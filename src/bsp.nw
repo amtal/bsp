@@ -369,7 +369,15 @@ gains.
 
 \subsection{Viewing}
 
-Views are transformations of a complex type into a slightly simpler one. They're an information hiding abstraction.
+Views are transformations of a complex type into a slightly simpler one. They're an information hiding abstraction. 
+
+Here's the simplest one:
+
+<<Viewing docs>>=
+```erlang
+-spec at(vector(N), tree(N,A)) -> A.
+```
+@
 
 A useful one is taking a slice out of an N-dimensional tree by looking up several of its indexes, producing a lower-dimensional tree as the output. There's a trivial proof that the method I use to do it is safe, but it'll wait until I get around to transcribing my notes.
 
@@ -388,7 +396,7 @@ indexes. You can select a single Z-slice at X=1, Y=2 from a 3D tree by doing
 bsp:select({vec,1,2,undefined}, Tree).
 
 (If all coordinates are defined, this is a point lookup and identical to
-bsp:at/2.)
+at.)
 
 ```erlang
 -spec select(maybe_vector(M,N), tree(N,A) -> tree(M,A) when M<N | A when M=N.
@@ -428,7 +436,7 @@ bsp:at/2.)
     (in (list->tup (cons tag remnants))
      [tag (element 1 vec)
       ; should do this with a LC instead \/
-      remants (lists:filter (cut <> 'undefined) marked)
+      remnants (lists:filter (cut == 'undefined <>) marked)
       marked (lists:zipwith mark (vec-contents sel) (vec-contents vec))
       mark (fn [a _] (when (is_atom a)) 'undefined
                [_ n] n)]))
@@ -436,12 +444,6 @@ bsp:at/2.)
 
 
 Having implemented select, we can cheat and use it to implement at. There's unnecessary overhead from definition checks, but that's a later optional optimization.
-
-<<Viewing docs>>=
-```erlang
--spec at(vector(N), tree(N,A)) -> A.
-```
-@
 
 <<Exports>>=
 (at 2)
