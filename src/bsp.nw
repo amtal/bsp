@@ -144,7 +144,7 @@ Dereferencing one split of a BSP tree is a rotation. We'll end up iterating over
 Alternatively, an index into the vector could be used.
 
 <<Vectors>>=
-(defn vec-size [v] (- (size v) 1))
+(defn vec-size [v] (- (tuple_size v) 1))
 
 ; proper zero-based indexing
 (defn vec-nth [n v] (element (+ n 2) v))
@@ -181,11 +181,13 @@ Finally, the minimum usual operations. The size-apathetic arithmetic ones are sl
 <<Vectors>>=
 ; construct a null vector of the same type as another
 (defn null-vec [v] 
-  (: erlang make_tuple (vec-size v) 0 
+  (: erlang make_tuple (+ 1 (vec-size v)) 
+                       0 
                        (list (tuple 1 (element 1 v)))))
 
 (defn unit-hypercube? [v]
-  (== v (: erlang make_tuple (vec-size v) 1
+  (== v (: erlang make_tuple (+ 1 (vec-size v))
+                             1
                              (list (tuple 1 (element 1 v))))))
 
 (defn :+ (va vb) 

@@ -37,7 +37,7 @@
 
 ; first vector element ('x')
 (defn 1st-el [v] (element 2 v))
-(defn vec-size [v] (- (size v) 1))
+(defn vec-size [v] (- (tuple_size v) 1))
 
 ; proper zero-based indexing
 (defn vec-nth [n v] (element (+ n 2) v))
@@ -51,11 +51,13 @@
   (lists:all (fun 2^n? 1) (vec-contents v)))
 ; construct a null vector of the same type as another
 (defn null-vec [v] 
-  (: erlang make_tuple (vec-size v) 0 
+  (: erlang make_tuple (+ 1 (vec-size v)) 
+                       0 
                        (list (tuple 1 (element 1 v)))))
 
 (defn unit-hypercube? [v]
-  (== v (: erlang make_tuple (vec-size v) 1
+  (== v (: erlang make_tuple (+ 1 (vec-size v))
+                             1
                              (list (tuple 1 (element 1 v))))))
 
 (defn :+ (va vb) 
