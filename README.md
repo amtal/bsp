@@ -48,6 +48,12 @@ at.)
     N==size(Tuple)-1,
     M==length([X<-Tuple, is_integer(X)]).
 ```
+
+Run length encoding is a one dimensional depth-one tree with boundary rather than binary partitions.
+
+```erlang
+-spec to_rle(tree(1,A)) -> [{RunLength::integer(),A}].
+```
 Factor a tree into a lower-dimension tree of lower-dimension trees. Non-zero
 vector elements mark dimensions to use in the top tree.
 

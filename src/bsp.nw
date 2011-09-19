@@ -407,7 +407,7 @@ at.)
 @
 
 <<Exports>>=
-(select 2)
+(select 2) (at 2)
 @
 
 <<Functions>>=
@@ -445,12 +445,48 @@ at.)
 
 Having implemented select, we can cheat and use it to implement at. There's unnecessary overhead from definition checks, but that's a later optional optimization.
 
-<<Exports>>=
-(at 2)
-@
-
 <<Functions>>=
 (defn at [point tree] (select point tree))
+@
+
+There's a one-dimensional view I like: run length encoding.
+
+A note on good practice: all Erlang types should, really, be atom-tagged tuples. The fact that my RLE encoding isn't is an exception because I expect it to be used immediately in some sort of list comprehension. Most of the time.
+
+<<Viewing docs>>=
+
+Run length encoding is a one dimensional depth-one tree with boundary rather than binary partitions.
+
+```erlang
+-spec to_rle(tree(1,A)) -> [{RunLength::integer(),A}].
+```
+@
+
+<<Exports>>=
+(to_rle 1)
+@
+
+This could be implemented using a foldl directly over the tree. That could end up being a useful function later, but since I don't yet have it I'll first flatten the tree to a list.
+
+<<Functions>>=
+(defn to_rle [(:bsp (tuple _ len) data)] 
+  (-> (tag-lengths len data)
+      lists:flatten
+      rle-group))
+; where
+  (defn tag-lengths
+    [len (cons l r)]
+      (in (cons (tag-lengths len' l) (tag-lengths len' r))
+        [len' (bsl len 2)])
+    [len leaf] 
+      (cons (tuple len leaf) '()))
+  (defn rle-group [ls]
+    (in (lists:reverse (lists:foldl group (car ls) (cdr ls)))
+      [group (fn [(tuple len dat) (tuple total last-dat acc)]
+                (if (== dat last-dat) 
+                  (tuple (+ total len) last-dat acc)
+                  (tuple len dat (cons (tuple total last-dat) acc))))]))
+      
 @
 
 \subsection{Factoring}

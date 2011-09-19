@@ -7,8 +7,8 @@
   (export (new 2)
 	  (is_tree 1) (size 1) (sparsity 1)
 	  (map 2) (zipwith 3)
-	  (select 2)
-	  (at 2)
+	  (select 2) (at 2)
+	  (to_rle 1)
 	  (factor 2)))
 
 ;; Vector manipulation:
@@ -203,3 +203,21 @@
       mark (fn [a _] (when (is_atom a)) 'undefined
                [_ n] n)]))
 (defn at [point tree] (select point tree))
+(defn to_rle [(:bsp (tuple _ len) data)] 
+  (-> (tag-lengths len data)
+      lists:flatten
+      rle-group))
+; where
+  (defn tag-lengths
+    [len (cons l r)]
+      (in (cons (tag-lengths len' l) (tag-lengths len' r))
+        [len' (bsl len 2)])
+    [len leaf] 
+      (cons (tuple len leaf) '()))
+  (defn rle-group [ls]
+    (in (lists:reverse (lists:foldl group (car ls) (cdr ls)))
+      [group (fn [(tuple len dat) (tuple total last-dat acc)]
+                (if (== dat last-dat) 
+                  (tuple (+ total len) last-dat acc)
+                  (tuple len dat (cons (tuple total last-dat) acc))))]))
+      
