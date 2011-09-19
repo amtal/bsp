@@ -1,4 +1,7 @@
-all: bsp.pdf
+all: bsp.pdf ebin/bsp.beam
+
+ebin/bsp.beam: src/bsp.lfe
+	rebar compile skip_deps=true
 
 bsp.pdf: src/bsp.tex
 	pdflatex -interaction nonstopmode src/bsp.tex
