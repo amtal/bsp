@@ -24,7 +24,8 @@ reduction() ->
                         end, Tree),
         {N1,D} = bsp:sparsity(Tree),
         {N2,D} = bsp:sparsity(Tree2),
-        N2 =< N1
+        Compression = 100-trunc(100*N2/N1),
+        collect(with_title("Compression percentages:"), Compression, N2 =< N1)
     end).
 
 pow2_vector(N) -> 
