@@ -7,6 +7,8 @@
   (export (new 2)
 	  (is_tree 1) (size 1) (sparsity 1)
 	  (map 2) (zipwith 3)
+	  (select 2)
+	  (at 2)
 	  (factor 2)))
 
 ;; Vector manipulation:
@@ -171,3 +173,33 @@
   (defn fork-volume
     [(cons l r)] (cons l r)
     [leaf] (cons leaf leaf))
+(defn select [pos (:bsp size data)] 
+  (in (if all-defined? 
+        selection 
+        (:bsp (drop-axes pos size) selection))
+    [all-defined? (lists:all (fun is_integer 1) pos)
+     selection (select-tree pos data)]))
+; where
+  (defn select-tree 
+    [_ leaf] (when (not (is_list leaf))) leaf
+    [pos tree]
+      (in 'tree
+       ['tree (cond ((is_atom el) ; not selecting this axis
+                     (cons (select-tree pos' (car tree))
+                           (select-tree pos' (cdr tree))))
+                    ((== 0 (band 1 el)) ; left branch
+                     (select-tree pos' (car tree)))
+                    ('true  ; right branch
+                     (select-tree pos' (cdr tree))))
+        ; if this axis had a branch selected, pop off the index bit
+        pos' (vec-rot-with (if (is_integer el) (bsr el 1) el) pos)
+        el (1st-el pos)]))
+  (defn drop-axes [sel vec]
+    (in (list->tup (cons tag remnants))
+     [tag (element 1 vec)
+      ; should do this with a LC instead \/
+      remnants (lists:filter (cut == 'undefined <>) marked)
+      marked (lists:zipwith mark (vec-contents sel) (vec-contents vec))
+      mark (fn [a _] (when (is_atom a)) 'undefined
+               [_ n] n)]))
+(defn at [point tree] (select point tree))
