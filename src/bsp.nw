@@ -472,20 +472,25 @@ This could be implemented using a foldl directly over the tree. That could end u
 (defn to_rle [(:bsp (tuple _ len) data)] 
   (-> (tag-lengths len data)
       lists:flatten
-      rle-group))
+      rle-rev-group
+      lists:reverse))
 ; where
   (defn tag-lengths
     [len (cons l r)]
       (in (cons (tag-lengths len' l) (tag-lengths len' r))
-        [len' (bsl len 2)])
+        [len' (bsr len 1)])
     [len leaf] 
       (cons (tuple len leaf) '()))
-  (defn rle-group [ls]
-    (in (lists:reverse (lists:foldl group (car ls) (cdr ls)))
-      [group (fn [(tuple len dat) (tuple total last-dat acc)]
-                (if (== dat last-dat) 
-                  (tuple (+ total len) last-dat acc)
-                  (tuple len dat (cons (tuple total last-dat) acc))))]))
+  (defn rle-rev-group [ls] ; well this is uglier than I hoped
+    (in (cons (tuple tl-len tl-data) acc)
+      [(tuple tl-len tl-data acc) (lists:foldl group acc0 tail)
+       acc0 (tuple hd-len hd-data '())
+       ((tuple hd-len hd-data) . tail) ls
+       group 
+         (fn [(tuple len dat) (tuple total last-dat acc)]
+           (if (== dat last-dat) 
+             (tuple (+ total len) last-dat acc)
+             (tuple len dat (cons (tuple total last-dat) acc))))]))
       
 @
 
