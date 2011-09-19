@@ -2,12 +2,11 @@
 -compile(export_all).
 -include_lib("proper/include/proper.hrl").
 
-go()->
-    proper:quickcheck(bsp_tests:reduction()).
+go()->proper:module(bsp_tests).
 
 %% Via bsp:new/2, bsp:map/1, and bsp:sparsity/1, assert:
 %%    Reducing the range of the contents tends to simplify the tree.
-reduction() ->
+prop_compression() ->
     ?FORALL({Tree,Limit}
            ,{?LET(Dim,integer(1,4),
                 ?LET(Size,pow2_vector(Dim),
@@ -25,7 +24,9 @@ reduction() ->
         {N1,D} = bsp:sparsity(Tree),
         {N2,D} = bsp:sparsity(Tree2),
         Compression = 100-trunc(100*N2/N1),
-        collect(with_title("Compression percentages:"), Compression, N2 =< N1)
+        collect(with_title("Compression percentages:"), Compression,
+             N2 =< N1
+        )
     end).
 
 pow2_vector(N) -> 
