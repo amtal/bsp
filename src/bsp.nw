@@ -375,7 +375,7 @@ gains.
 
 Each cons cell represents a split on an axis. The axes are round robined. They are independent: so much so that an N dimensional tree can be factored into a J dimensional tree of K dimensional trees, where J+K=N.
 
-<<Transforming docs>>=
+<<Viewing docs>>=
 Factor a tree into a lower-dimension tree of lower-dimension trees. Non-zero
 vector elements mark dimensions to use in the top tree.
 
@@ -408,9 +408,6 @@ The process can produce significant duplication between the inner trees. The inn
 
 \section{Todo}
 
-<<Viewing docs>>=
-    todo
-@
 <<Querying docs>>=
     todo
 @
