@@ -131,7 +131,7 @@
 
 (defn sparsity [(:bsp size data)] 
   (tuple (count-leaves data)
-         (lists:foldl (fn [a b] (* a b)) 1 (vec-contents data))))
+         (lists:foldl (fn [a b] (* a b)) 1 (vec-contents size))))
 ; where
   (defn count-leaves 
     [(cons l r)] (+ (count-leaves l) (count-leaves r))
