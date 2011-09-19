@@ -30,12 +30,29 @@ Ideal constructor from flat data (binaries, arrays) accessible via vector lookup
 -spec new(Size::vector(N), Lookup::fun(vector(N))->A) -> tree(N,A).
 ```
 
-Querying
-========
-Point query.
+Viewing
+=======
+A tree can be reduced to a lower dimension one by selecting one or more of its
+indexes. You can select a single Z-slice at X=1, Y=2 from a 3D tree by doing
+bsp:select({vec,1,2,undefined}, Tree).
+
+(If all coordinates are defined, this is a point lookup and identical to
+bsp:at/2.)
 
 ```erlang
+-spec select(maybe_vector(M,N), tree(N,A) -> tree(M,A) when M<N | A when M=N.
+-type maybe_vector(M,N) :: {term(),integer()|atom(),...} when 
+    N==size(Tuple)-1,
+    M==length([X<-Tuple, is_integer(X)]).
+```
+```erlang
 -spec at(vector(N), tree(N,A)) -> A.
+```
+Factor a tree into a lower-dimension tree of lower-dimension trees. Non-zero
+vector elements mark dimensions to use in the top tree.
+
+```erlang
+-spec factor(Selector::vector(N), tree(N,A)) -> tree(J,tree(K,A)) when J+K=N.
 ```
 
 Transforming
@@ -51,24 +68,4 @@ gains.
 
 ```erlang
 -spec zipwith(fun(A,B)->C, tree(N,A), tree(N,B)) -> tree(N,C).
-```
-
-Viewing
-=======
-A tree can be reduced to a lower dimension one by selecting one or more of its indexes. You can select a single Z-slice at X=1, Y=2 from a 3D tree by doing bsp:select({vec,1,2,undefined}, Tree).
-
-(If all coordinates are defined, this is a point lookup and identical to bsp:at/2.)
-
-```erlang
--spec select(maybe_vector(M,N), tree(N,A) -> tree(M,A) when M < N 
-                                           | A when M = N.
--type maybe_vector(M,N) :: {term(),integer()|atom(),...} when 
-    N==size(Tuple)-1,
-    M==length([X<-Tuple, is_integer(X)]).
-```
-Factor a tree into a lower-dimension tree of lower-dimension trees. Non-zero
-vector elements mark dimensions to use in the top tree.
-
-```erlang
--spec factor(Selector::vector(N), tree(N,A)) -> tree(J,tree(K,A)) when J+K=N.
 ```

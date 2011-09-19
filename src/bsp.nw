@@ -46,17 +46,13 @@ Building
 ========
 <<Building docs>>
 
-Querying
-========
-<<Querying docs>>
+Viewing
+=======
+<<Viewing docs>>
 
 Transforming
 ============
 <<Transforming docs>>
-
-Viewing
-=======
-<<Viewing docs>>
 @
 
 All code is one module.
@@ -387,13 +383,15 @@ I'm not sure about the API to use: I want to be able to specify multiple axes in
 I suppose I may as well abuse the dynamic type system.
 
 <<Viewing docs>>=
-A tree can be reduced to a lower dimension one by selecting one or more of its indexes. You can select a single Z-slice at X=1, Y=2 from a 3D tree by doing bsp:select({vec,1,2,undefined}, Tree).
+A tree can be reduced to a lower dimension one by selecting one or more of its
+indexes. You can select a single Z-slice at X=1, Y=2 from a 3D tree by doing
+bsp:select({vec,1,2,undefined}, Tree).
 
-(If all coordinates are defined, this is a point lookup and identical to bsp:at/2.)
+(If all coordinates are defined, this is a point lookup and identical to
+bsp:at/2.)
 
 ```erlang
--spec select(maybe_vector(M,N), tree(N,A) -> tree(M,A) when M < N 
-                                           | A when M = N.
+-spec select(maybe_vector(M,N), tree(N,A) -> tree(M,A) when M<N | A when M=N.
 -type maybe_vector(M,N) :: {term(),integer()|atom(),...} when 
     N==size(Tuple)-1,
     M==length([X<-Tuple, is_integer(X)]).
@@ -405,10 +403,10 @@ A tree can be reduced to a lower dimension one by selecting one or more of its i
 @
 
 <<Functions>>=
-(defn select [pos (:oct size data)] 
+(defn select [pos (:bsp size data)] 
   (in (if all-defined? 
         selection 
-        (:oct (drop-axes pos size) selection))
+        (:bsp (drop-axes pos size) selection))
     [all-defined? (lists:all (fun is_integer 1) pos)
      selection (select-tree pos data)]))
 ; where
@@ -439,9 +437,7 @@ A tree can be reduced to a lower dimension one by selecting one or more of its i
 
 Having implemented select, we can cheat and use it to implement at. There's unnecessary overhead from definition checks, but that's a later optional optimization.
 
-<<Querying docs>>=
-Point query.
-
+<<Viewing docs>>=
 ```erlang
 -spec at(vector(N), tree(N,A)) -> A.
 ```
