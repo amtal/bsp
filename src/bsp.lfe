@@ -136,7 +136,8 @@
   (defn count-leaves 
     [(cons l r)] (+ (count-leaves l) (count-leaves r))
     [_] 1)
-(defn map [f (:bsp _ data)] (map-tree f data))
+(defn map [f (:bsp size data)] 
+    (:bsp size (map-tree f data)))
 ; where
   (defn map-tree
     [f (cons l r)]
@@ -160,11 +161,11 @@
           (error (tuple 'bad_leaf_no_lists leaf'))
           leaf'))
     [f tree1 tree2] 
-      (in (if (minimal-identical-trees? left right)
-            left
-            (cons left right))
-       [left (zipwith-tree f l1 l2)
-        right (zipwith-tree f r1 r2)
+      (in (if (minimal-identical-trees? tree1' tree2')
+            tree1'
+            (cons tree1' tree2'))
+       [tree1' (zipwith-tree f l1 r1)
+        tree2' (zipwith-tree f l2 r2)
         (l1 . r1) (fork-volume tree1)
         (l2 . r2) (fork-volume tree2)]))
   (defn fork-volume

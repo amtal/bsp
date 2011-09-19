@@ -333,7 +333,8 @@ gains.
 @
 
 <<Functions>>=
-(defn map [f (:bsp _ data)] (map-tree f data))
+(defn map [f (:bsp size data)] 
+    (:bsp size (map-tree f data)))
 ; where
   (defn map-tree
     [f (cons l r)]
@@ -365,7 +366,7 @@ gains.
         (l1 . r1) (fork-volume tree1)
         (l2 . r2) (fork-volume tree2)]))
   (defn fork-volume
-    [(cons l r)] (l . r)
+    [(cons l r)] (cons l r)
     [leaf] (cons leaf leaf))
 @
 
