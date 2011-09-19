@@ -5,9 +5,11 @@
 go()->
     proper:quickcheck(bsp_tests:reduction()).
 
+%% Via bsp:new/2, bsp:map/1, and bsp:sparsity/1, assert:
+%%    Reducing the range of the contents tends to simplify the tree.
 reduction() ->
     ?FORALL({Tree,Limit}
-           ,{?LET(Dim,integer(1,5),
+           ,{?LET(Dim,integer(1,4),
                 ?LET(Size,pow2_vector(Dim),
                         byte_tree(Size)
                     )
@@ -26,7 +28,7 @@ reduction() ->
     end).
 
 pow2_vector(N) -> 
-    ?LET(Range,union([1,2,4,8,16,32]), % only cubic vectors - meh, will do
+    ?LET(Range,union([1,2,4,8,16]), % only cubic vectors - meh, will do
         ?LET(Contents,vector(N,Range),
             list_to_tuple([{vec,N}|Contents])
         )
@@ -34,9 +36,10 @@ pow2_vector(N) ->
 
 byte_tree(Size) ->
     FlatSize = volume(Size),
-    ?LET(Data,vector(FlatSize,integer(0,255)),
-        bsp:new(Size, fun(Pos)->lists:nth(index(Size,Pos)+1,Data) end)
-    ).
+    ?LET(Data,vector(FlatSize,integer(0,255)), begin
+        BinData = list_to_binary(Data),
+        bsp:new(Size, fun(Pos)->binary:at(BinData,index(Size,Pos)) end)
+    end).
     
 % where
     volume(Vec) -> 
