@@ -48,6 +48,10 @@ gains.
 ```erlang
 -spec map(fun(A)->B, tree(N,A)) -> tree(N,B).
 ```
+
+```erlang
+-spec zipwith(fun(A,B)->C, tree(N,A), tree(N,B)) -> tree(N,C).
+```
 Factor a tree into a lower-dimension tree of lower-dimension trees. Non-zero
 vector elements mark dimensions to use in the top tree.
 

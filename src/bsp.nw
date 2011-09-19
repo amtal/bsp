@@ -311,7 +311,7 @@ The Erlang community dislikes macros almost as much as Java. However, you know w
     [_] 1)
 @
 
-Maps are trivial, but important.
+Maps are trivial, but important. Zipwiths are essentially maps over two structures simultaneously. They're surprisingly flexible: it is should be possible to implement efficient bulk multi-point writes using them.
 
 <<Transforming docs>>=
 Maps tend to simplify the data while keeping size the same, making it more
@@ -322,10 +322,14 @@ gains.
 ```erlang
 -spec map(fun(A)->B, tree(N,A)) -> tree(N,B).
 ```
+
+```erlang
+-spec zipwith(fun(A,B)->C, tree(N,A), tree(N,B)) -> tree(N,C).
+```
 @
 
 <<Exports>>=
-(map 2)
+(map 2) (zipwith 3)
 @
 
 <<Functions>>=
@@ -339,6 +343,30 @@ gains.
        [l' (map-tree f l) 
         r' (map-tree f r)])
     [f leaf] (funcall f leaf))
+
+(defn zipwith [f (:bsp size1 tree1) (:bsp size2 tree2)]
+  (if (== size1 size2)
+    (zipwith-tree f tree1 tree2)
+    (error (tuple 'size_mismatch size1 size2))))
+; where
+  (defn zipwith-tree
+    [f leaf1 leaf2] (when (not (is_list leaf1))
+                          (not (is_list leaf2)))
+      (let [(leaf' (funcall f leaf1 leaf2))]
+        (if (is_list leaf')
+          (error (tuple 'bad_leaf_no_lists leaf'))
+          leaf'))
+    [f tree1 tree2] 
+      (in (if (minimal-identical-trees? tree1' tree2')
+            tree1'
+            (cons tree1' tree2'))
+       [tree1' (zipwith-tree f l1 r1)
+        tree2' (zipwith-tree f l2 r2)
+        (l1 . r1) (fork-volume tree1)
+        (l2 . r2) (fork-volume tree2)]))
+  (defn fork-volume
+    [(cons l r)] (l . r)
+    [leaf] (cons leaf leaf))
 @
 
 

@@ -6,7 +6,7 @@
   (using lists)
   (export (new 2)
 	  (is_tree 1) (size 1) (sparsity 1)
-	  (map 2)
+	  (map 2) (zipwith 3)
 	  (factor 2)))
 
 ;; Vector manipulation:
@@ -146,3 +146,27 @@
        [l' (map-tree f l) 
         r' (map-tree f r)])
     [f leaf] (funcall f leaf))
+
+(defn zipwith [f (:bsp size1 tree1) (:bsp size2 tree2)]
+  (if (== size1 size2)
+    (zipwith-tree f tree1 tree2)
+    (error (tuple 'size_mismatch size1 size2))))
+; where
+  (defn zipwith-tree
+    [f leaf1 leaf2] (when (not (is_list leaf1))
+                          (not (is_list leaf2)))
+      (let [(leaf' (funcall f leaf1 leaf2))]
+        (if (is_list leaf')
+          (error (tuple 'bad_leaf_no_lists leaf'))
+          leaf'))
+    [f tree1 tree2] 
+      (in (if (minimal-identical-trees? left right)
+            left
+            (cons left right))
+       [left (zipwith-tree f l1 l2)
+        right (zipwith-tree f r1 r2)
+        (l1 . r1) (fork-volume tree1)
+        (l2 . r2) (fork-volume tree2)]))
+  (defn fork-volume
+    [(cons l r)] (cons l r)
+    [leaf] (cons leaf leaf))
