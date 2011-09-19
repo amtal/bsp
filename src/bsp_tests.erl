@@ -8,8 +8,8 @@ go()->proper:module(bsp_tests).
 %%    Reducing the range of the contents tends to simplify the tree.
 prop_compression() ->
     ?FORALL({Tree,Limit}
-           ,{?LET(Dim,integer(1,4),
-                ?LET(Size,pow2_vector(Dim,2),
+           ,{?LET(Dim,integer(1,3),
+                ?LET(Size,pow2_vector(Dim,5),
                         byte_tree(Size)
                     )
              )
@@ -33,8 +33,8 @@ prop_compression() ->
     end).
 
 pow2_vector(Dims,Limit) -> 
-    ?LET(Lengths,vector(Dims,integer(1,Limit)),begin
-        Contents = [trunc(math:pow(2,L))||L<-Lengths],
+    ?LET(Length,integer(0,Limit),begin
+        Contents = lists:duplicate(Dims,trunc(math:pow(2,Length))),
         list_to_tuple([{vec,Dims}|Contents])
     end).
 
