@@ -1,4 +1,7 @@
+ebin/
+deps/
 *.swp
+src/*.beam
 src/bsp.tex
 bsp.aux
 bsp.log

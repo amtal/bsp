@@ -13,7 +13,7 @@
 ; sanitize input
 (defn vector? 
   [v] (when (is_tuple v))
-    (lists:all (fun is_integer 1) (vec-contents v)))
+    (lists:all (fun is_integer 1) (vec-contents v))
   [_] 'false)
 
 ; get list of integers
@@ -31,9 +31,9 @@
 
 ; same, but overwrite first element
 (defn vec-rot-with [x v]
-  (in (list->tup (cons tag xs')
+  (in (list->tup (cons tag xs'))
    [xs' (++ (tl xs) (list x))
-    (tag . xs) (tup->list v)])))
+    (tag . xs) (tup->list v)]))
 
 ; first vector element ('x')
 (defn 1st-el [v] (element 2 v))
@@ -44,7 +44,7 @@
 
 ; overflow indexes that get too large
 (defn vec-index [n v]
-  (let (if (< 0 n') n' (+ size n'))
+  (in (if (< 0 n') n' (+ size n'))
    [n' (rem n size)
     size (vec-size v)]))
 (defn 2^n-vec? [v]
@@ -52,7 +52,7 @@
 ; construct a null vector of the same type as another
 (defn null-vec [v] 
   (: erlang make_tuple (vec-size v) 0 
-                       (list (tuple 1 (element 1 v))))
+                       (list (tuple 1 (element 1 v)))))
 
 (defn unit-hypercube? [v]
   (== v (: erlang make_tuple (vec-size v) 1
@@ -80,12 +80,13 @@
   [_] 'false)
 (defmacro :bsp ([size data] `(tuple 'bsp ,size ,data)))
 (defn factor [axes (:bsp size data)]
-  (in (:bsp outer-size (factor inner-size axes data acc))
+  (in (:bsp outer-size (factor inner-size axes data 'acc))
    [(tuple outer-size inner-size) (partition-vec axes size)
     _ (if (/= (vec-size axes) (vec-size size))
         (error (tuple 'vector_dim_mismatch axes size)))]))
 ; where
   (defn factor [inner-size axes data inner] 'todo)
+  (defn partition-vec [_ _] 'todo)
     
 
 ;; BSP tree manipulation:
@@ -135,9 +136,9 @@
     [_] 1)
 (defn map [f (:bsp _ data)] (map-tree f data))
 ; where
-  (map-tree
+  (defn map-tree
     [f (cons l r)]
-      (in (if (?minimal-identical-trees? l' r') 
+      (in (if (minimal-identical-trees? l' r') 
             l' ; tree got simplified, merge
             (cons l' r'))
        [l' (map-tree f l) 

@@ -6,10 +6,10 @@ vectors.  Each tree should only contain one type of vector. Mixing things like
 ```erlang
 -spec vector(N) :: {term(),integer(),...} when N==size(Tuple)-1.
 ```
-Trees are indexed by an N-dimensional vector, and can contain anything.
+Trees are indexed by an N-dimensional vector, and can contain anything but lists.
 
 ```erlang
--type tree(N,A)::{bsp,term(),term()} when N::integer(), A::any().
+-type tree(N,A)::{bsp,term(),term()} when N::integer(), A::any_but_list().
 ```
 ```erlang
 -spec is_tree(term()) -> true|false.
