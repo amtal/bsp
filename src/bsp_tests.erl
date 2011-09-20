@@ -6,22 +6,32 @@ go()->proper:module(bsp_tests).
 
 %% Via bsp:new/2, bsp:at/2, assert:
 %%  Indexes are in the right place.
-prop_indexes() ->
-    ?FORALL(Size, ?LET(Dim,integer(1,4),pow2_vector(Dim,4)),
+prop_new_at_equivalence() ->
+    ?FORALL(Size, ?LET(Dim,integer(1,4),pow2_vector(Dim,3)),
         ?FORALL(Data, binary(volume(Size)),
-            ?FORALL(Tree, byte_tree(Size,Data), 
+            ?FORALL(Tree, tree(Size,Data), 
                 ?FORALL(Point, rand_pos_vec(Size),
                     bsp:at(Point,Tree) == binary:at(Data,index(Size,Point)))))).
 
+%% Via bsp:new/2, bsp:to_rle/1, assert:
+%%  Length is conserved in RLE encodings.
+prop_new_to_rle_length() ->
+    ?FORALL(Size, pow2_vector(1,8),
+        ?FORALL(Data, binary(volume(Size)),
+            ?FORALL(Tree, tree(Size,Data), begin
+                {_Tag,TreeWidth} = Size,
+                {RleWs,_Data} = lists:unzip(bsp:to_rle(Tree)),
+                TreeWidth == lists:sum(RleWs)
+            end))).
 
 %% Via bsp:new/2, bsp:map/1, and bsp:sparsity/1, assert:
 %%  Reducing the range of the contents tends to simplify the tree.
-prop_compression() ->
+prop_new_map_sparsity_compression() ->
     ?FORALL({Tree,Limit}
            ,{?LET(Dim,integer(1,4),
-                ?LET(Size,pow2_vector(Dim,4),
+                ?LET(Size,pow2_vector(Dim,3),
                     ?LET(Data,binary(volume(Size)),
-                        byte_tree(Size,Data))))
+                        tree(Size,Data))))
             ,integer(0,255)
             }
            ,begin
@@ -54,7 +64,7 @@ rand_pos_vec(CubeV) ->
     true = lists:all(fun(X)->X==Fst end, Es), % assert cube
     ?LET(Es2, vector(length(Es), integer(0,Fst-1)), list_to_tuple([Tag|Es2])).
 
-byte_tree(Size,Data) ->
+tree(Size,Data) ->
     bsp:new(Size, fun(Pos)->binary:at(Data,index(Size,Pos)) end).
     
 volume(Vec) -> 
