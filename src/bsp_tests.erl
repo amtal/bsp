@@ -11,7 +11,7 @@ prop_new_at_equivalence() ->
         ?FORALL(Data, binary(volume(Size)),
             ?FORALL(Tree, tree(Size,Data), 
                 ?FORALL(Point, rand_pos_vec(Size),
-                    bsp:at(Point,Tree) == binary:at(Data,index(Size,Point)))))).
+                    equals(bsp:at(Point,Tree), binary:at(Data,index(Size,Point))))))).
 
 %% Via bsp:new/2, bsp:to_rle/1, assert:
 %%  Length is conserved in RLE encodings.
@@ -21,7 +21,8 @@ prop_new_to_rle_length() ->
             ?FORALL(Tree, tree(Size,Data), begin
                 {_Tag,TreeWidth} = Size,
                 {RleWs,_Data} = lists:unzip(bsp:to_rle(Tree)),
-                TreeWidth == lists:sum(RleWs)
+                measure("RLE sparsity:", length(RleWs)/TreeWidth,
+                    equals(TreeWidth, lists:sum(RleWs)))
             end))).
 
 %% Via bsp:new/2, bsp:map/1, and bsp:sparsity/1, assert:
@@ -47,8 +48,10 @@ prop_new_map_sparsity_compression() ->
                             "Small limit = large range reduction = high compression\n"
                             "FRQ% {Limit div 10, Compression%}:")
                , {Limit div 10, Compression}
-               , N2 =< N1
-               )
+               , conjunction([{compression,N2 =< N1}
+                             ,{treeness,bsp:is_tree(Tree2)}
+                             ,{size,equals(bsp:size(Tree2),bsp:size(Tree))}
+                             ]))
     end).
 
 pow2_vector(Dims,Limit) -> 
