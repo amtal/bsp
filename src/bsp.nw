@@ -33,9 +33,17 @@ I'd also like it to be infinite, and support declarative, comonad-like transform
 
 The structure I'm implementing is a trivial binary space partitioned tree constructed from list cons cells. It is efficient to update, simple to implement, and has some very interesting properties for integer indexing and transformations.
 
-The library is implemented in Lisp Flavored Erlang for simplicity and development speed. It is documented via Knuth's literate programming to clarify and explain some of the algorithms and design choices.
+The library is implemented in Lisp Flavored Erlang for simplicity and development speed. It is documented via Knuth's literate programming to clarify and explain some of the algorithms and design choices\footnote{This approach appears much less useful with a functional language than an imperative one. Without side effects to sequence, breaking code into functions seems to fulfill the same purpose as breaking code into blocks does. It's still useful for mixing math and code.}. 
 
-\section{Files}
+\section{Theory}
+
+Todo: transcribe my notes.
+
+\section{Preparation}
+
+This section defines required, but simple and uninteresting files and utility functions. Feel free to skip over it.
+
+\subsection{Files}
 
 Brief usage documentation is in a Github README, with detailed documentation generated into a PDF.
 
@@ -76,9 +84,7 @@ All code is one module.
 <<Functions>>
 @
 
-\section{Vectors}
-
-This section sets up required, but simple and uninteresting utilities. Feel free to skip over it.
+\subsection{Vectors}
 
 We need a vector data type. Since there are no Erlang vector libraries that I'm aware of, I'm making my own. It conforms to good Erlang practice, and will be compatible with any good 3rd party code that pops up.
 
