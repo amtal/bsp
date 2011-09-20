@@ -7,7 +7,7 @@ go()->proper:module(bsp_tests).
 %% Via bsp:new/2, bsp:at/2, assert:
 %%  Indexes are in the right place.
 prop_indexes() ->
-    ?FORALL(Size, ?LET(Dim,integer(1,1),pow2_vector(Dim,3)),
+    ?FORALL(Size, ?LET(Dim,integer(1,4),pow2_vector(Dim,4)),
         ?FORALL(Data, binary(volume(Size)),
             ?FORALL(Tree, byte_tree(Size,Data), 
                 ?FORALL(Point, rand_pos_vec(Size),

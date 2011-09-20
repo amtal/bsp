@@ -183,20 +183,23 @@
         selection 
         (:bsp (drop-axes pos size) selection))
     [all-defined? (vector? pos)
-     selection (select-tree pos data)]))
+     selection (select-tree pos size data)
+     ; with cubic restriction, we can use first element
+     ; of size as a bit selector
+     size (bsr (1st-el size) 1)]))
 ; where
   (defn select-tree 
-    [_ leaf] (when (not (is_list leaf))) leaf
-    [pos tree]
+    [_ _ leaf] (when (not (is_list leaf))) leaf
+    [pos width tree]
       (in (cond ((is_atom el) ; not selecting this axis
-                 (cons (select-tree pos' (car tree))
-                       (select-tree pos' (cdr tree))))
-                ((== 0 (band 1 el)) ; left branch
-                 (select-tree pos' (car tree)))
+                 (cons (select-tree pos' width (car tree))
+                       (select-tree pos' width (cdr tree))))
+                ((== 0 (band width el)) ; left branch
+                 (select-tree pos' width (car tree)))
                 ('true  ; right branch
-                 (select-tree pos' (cdr tree))))
-        [pos' (vec-rot-with (if (is_integer el) (bsr el 1) el) pos)
-         ; (if this axis had a branch selected, pop off the index bit)
+                 (select-tree pos' width (cdr tree))))
+        [pos' (vec-rot-with (if (is_integer el) (bsl el 1) el) pos)
+         ; (if this axis had a branch selected, move to next index bit)
          el (1st-el pos)]))
   (defn drop-axes [sel vec]
     (in (list->tup (cons tag remnants))
