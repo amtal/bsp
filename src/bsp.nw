@@ -78,6 +78,8 @@ All code is one module.
 
 \section{Vectors}
 
+This section sets up required, but simple and uninteresting utilities. Feel free to skip over it.
+
 We need a vector data type. Since there are no Erlang vector libraries that I'm aware of, I'm making my own. It conforms to good Erlang practice, and will be compatible with any good 3rd party code that pops up.
 
 The BSP trees we're concerned with are trivial ones, where the volume being partitioned is always split exactly in half. Their structures have a nifty relation to the bits in the integer index of the volume being partitioned, which we'll take advantage of.
@@ -199,7 +201,7 @@ Finally, the minimum usual operations. The size-apathetic arithmetic ones are sl
 @
 
 
-\section{Foundations}
+\section{Trees}
 
 <<Intro docs>>=
 Trees are indexed by an N-dimensional vector, and can contain anything but
@@ -210,6 +212,15 @@ lists. Their width must be a power of two, and be the same for all dimensions.
 ```
 @
 
+\subsection{Representation}
+
+The previously defined theory is fairly flexible about implementation. Index order can be arbitrary - but that requires tagging each branch with which axis it's for, and I don't want to do that.
+
+Thus, we need an implicit axis order. The simplest one is round robin, but the problem of uneven axes comes up. If a tree is larger in one direction than another, it requires more forks in that axis. Where to put those forks - at the root, the leaves, or interspersed?
+
+Putting them at the end is pretty simple to implement if traversals keep track of the size of the tree they're traversing. For now, however, I've disallowed non-hypercubic tree dimensions. I'm still not familiar enough with how the structure will be used or the performance characteristics or what transformations I'll need to implement to know if uneven sizes are needed.
+
+Factoring, especially, may be simpler with cubes. For now, I'll keep the representation trivial.
 
 \subsection{Construction}
 
