@@ -7,7 +7,7 @@ go()->proper:module(bsp_tests).
 %% Via bsp:new/2, bsp:at/2, assert:
 %%  Indexes are in the right place.
 prop_indexes() ->
-    ?FORALL(Size, ?LET(Dim,integer(1,5),pow2_vector(Dim,4)),
+    ?FORALL(Size, ?LET(Dim,integer(1,1),pow2_vector(Dim,3)),
         ?FORALL(Data, binary(volume(Size)),
             ?FORALL(Tree, byte_tree(Size,Data), 
                 ?FORALL(Point, rand_pos_vec(Size),
@@ -18,8 +18,8 @@ prop_indexes() ->
 %%  Reducing the range of the contents tends to simplify the tree.
 prop_compression() ->
     ?FORALL({Tree,Limit}
-           ,{?LET(Dim,integer(1,3),
-                ?LET(Size,pow2_vector(Dim,5),
+           ,{?LET(Dim,integer(1,4),
+                ?LET(Size,pow2_vector(Dim,4),
                     ?LET(Data,binary(volume(Size)),
                         byte_tree(Size,Data))))
             ,integer(0,255)
@@ -47,11 +47,12 @@ pow2_vector(Dims,Limit) ->
         list_to_tuple([{vec,Dims}|Contents])
     end).
 
+% input is size of space: output element width is (0..Size]
 rand_pos_vec(CubeV) -> 
     [Tag|Es] = tuple_to_list(CubeV),
     Fst = hd(Es),
-    true = lists:all(fun(X)->X==Fst end, Es),
-    ?LET(Es2, vector(length(Es), integer(0,Fst)), list_to_tuple([Tag|Es2])).
+    true = lists:all(fun(X)->X==Fst end, Es), % assert cube
+    ?LET(Es2, vector(length(Es), integer(0,Fst-1)), list_to_tuple([Tag|Es2])).
 
 byte_tree(Size,Data) ->
     bsp:new(Size, fun(Pos)->binary:at(Data,index(Size,Pos)) end).
