@@ -10,8 +10,11 @@ prop_new_at_equivalence() ->
     ?FORALL(Size, ?LET(Dim,integer(1,4),pow2_vector(Dim,3)),
         ?FORALL(Data, binary(volume(Size)),
             ?FORALL(Tree, tree(Size,Data), 
-                ?FORALL(Point, rand_pos_vec(Size),
-                    equals(bsp:at(Point,Tree), binary:at(Data,index(Size,Point))))))).
+                ?FORALL(Points, vector(10,rand_pos_vec(Size)),
+                    conjunction([{ dummy
+                                 , equals( bsp:at(Point,Tree)
+                                         , binary:at(Data,index(Size,Point))
+                                         )} || Point<-Points]))))).
 
 %% Via bsp:new/2, bsp:to_rle/1, assert:
 %%  Length is conserved in RLE encodings.
